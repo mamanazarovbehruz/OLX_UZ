@@ -5,4 +5,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('api.v1.accounts.urls')),
     path('products/', include('api.v1.products.urls')),
+    path('drf-auth/', include('rest_framework.urls'))
 ]

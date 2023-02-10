@@ -1,4 +1,8 @@
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
+from rest_framework.authtoken.models import Token
+
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import authenticate
 
 from .models import CustomUser
 
@@ -28,3 +32,22 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         exclude = ['is_active', 'is_deleted', 'is_staff', 'password']
+
+
+class UserLoginSerializer(serializers.Serializer):
+    username = serializers.CharField(source='email', max_length=128)
+    password = serializers.CharField(max_length=128, write_only=True)
+
+
+    def validate(self, data):
+        username = data.get('email')
+        password = data.get('password')
+        user = get_object_or_404(CustomUser, email=username)
+        if not user.check_password(password):
+            raise exceptions.NotFound()
+
+        self.user = user
+        return data
+    
+    def save(self, *args, **kwargs):
+        return Token.objects.create(user_id=self.user.id).key

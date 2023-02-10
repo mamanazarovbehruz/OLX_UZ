@@ -36,6 +36,7 @@ INSTALLED_APPS = [
 
     # glabal
     'rest_framework',
+    'rest_framework.authtoken',
     'multiselectfield',
     'django_filters',
 ]
