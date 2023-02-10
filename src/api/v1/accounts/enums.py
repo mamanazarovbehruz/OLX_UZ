@@ -23,3 +23,12 @@ class LanguageLevel(Enum):
     @classmethod
     def choices(cls):
         return [(i.name, i.value) for i in cls]
+    
+
+class Language(Enum):
+    uz = 'Uzbek'
+    rus = 'Russia'
+
+    @classmethod
+    def choices(cls):
+        return [(i.name, i.value) for i in cls]

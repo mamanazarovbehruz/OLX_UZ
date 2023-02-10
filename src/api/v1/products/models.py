@@ -1,5 +1,5 @@
 from django.db import models
-from random import sample
+from random import randint
 from django.core.validators import MinValueValidator
 
 from api.v1.accounts.models import CustomUser
@@ -32,6 +32,7 @@ class Field(models.Model):
     creator = models.ForeignKey(CustomUser, related_name='category_fields', null=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=150, unique=True)
     date_created = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
     is_delete = models.BooleanField(default=False)
 
 
@@ -82,9 +83,9 @@ class Product(models.Model):
     author = models.ForeignKey(CustomUser, related_name='products', on_delete=models.SET_NULL, null=True)
 
     def save(self, *args, **kwargs):
-        self.number_id = sample(range(100), 8)
-        if Product.objects.filter(number_id=self.number_id).exists():
-            self.number_id = sample(range(10), 8)
+        self.number_id = randint(10000000, 99999999)
+        while CustomUser.objects.filter(number_id=self.number_id):
+            self.number_id = randint(10000000, 99999999)
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -106,6 +107,7 @@ class ProductField(models.Model):
     # second Choice
     is_true = models.BooleanField(default=False)
 
+    is_main = models.BooleanField(default=False)
     date_created = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):

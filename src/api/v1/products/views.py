@@ -4,14 +4,12 @@ from rest_framework import (
     authentication
 )
 
+import django_filters.rest_framework
+from django.db.models import Q
 from api.v1.accounts.permissions import IsDeleted
 from .models import *
 from .enums import Status
-from .serializers import (
-    CategoryAdminSerializer, CategoryClientSerializer, FieldAminSerializer,
-    FieldSerializer, ProductListSerializer, ProductFieldSerializer, 
-    ProductDetailSerializer, ProductCreateSerializer, ProductRetrieveUpdateDestroySerializer
-)
+from .serializers import *
 
 
 class CategoryAdminListCreateAPIView(generics.ListCreateAPIView):
@@ -84,6 +82,7 @@ class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
     def perform_destroy(self, instance):
         instance.is_deleted = True
         instance.save()
+
 
 class ProductClientListAPIView(generics.ListAPIView):
     queryset = Product.objects.filter(status=Status.a.name, is_deleted=False)

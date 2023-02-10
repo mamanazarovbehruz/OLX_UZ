@@ -3,11 +3,10 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from multiselectfield import MultiSelectField
 from django.core.validators import MinValueValidator
-from languages.fields import LanguageField
 
 from .validators import validate_phone
 from .services import upload_avatar_path, upload_resume_path
-from .enums import Licences, LanguageLevel
+from .enums import Licences, LanguageLevel, Language
 from .managers import CustomUserManager
 
 
@@ -63,7 +62,7 @@ class CustomUser(AbstractUser):
 
 class UserLanguage(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    language = LanguageField(max_length=100)
+    language = models.CharField(max_length=3, choices=Language.choices())
     level = models.CharField(max_length=4 ,choices=LanguageLevel.choices())
     date_created = models.DateField(auto_now_add=True)
 

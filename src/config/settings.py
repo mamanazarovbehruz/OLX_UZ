@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     # glabal
     'rest_framework',
     'multiselectfield',
-    'languages',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
