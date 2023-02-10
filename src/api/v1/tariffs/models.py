@@ -7,14 +7,15 @@ from api.v1.products.models import Product
 class Advantage(models.Model):
     TYPE_CHOICE = (
         ('t', 'TOP'),
-        ('k', 'KO\'TARISH'),
+        ('u', 'UP'),
         ('v', 'VIP'),
     )
 
     creator = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
     type = models.CharField(max_length=1, choices=TYPE_CHOICE)
-    value = models.PositiveSmallIntegerField()
+    value = models.PositiveSmallIntegerField(default=1)
     price = models.FloatField()
+    is_active = models.BooleanField(default=True)
     date_create = models.DateField(auto_now_add=True)
 
     def __str__(self):

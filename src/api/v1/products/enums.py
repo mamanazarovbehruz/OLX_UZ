@@ -1,19 +1,19 @@
 from enum import Enum
 
 class Status(Enum):
-    y = 'Yangi'
-    j = 'Jarayonda'
-    r = 'Rad etildi'
-    t = 'Tastiqlandi'
+    n = 'new'
+    p = 'in progress'
+    r = 'rejected'
+    a = 'active'
 
     @classmethod
     def choices(cls):
         return [(i.name, i.value) for i in cls]
 
 class ValueType(str ,Enum):
-    n = 'Narx'
-    b = 'Bepul'
-    a = 'Ayirboshlash'
+    p = 'price'
+    f = 'free'
+    e = 'exchange'
 
     @classmethod
     def choices(cls):

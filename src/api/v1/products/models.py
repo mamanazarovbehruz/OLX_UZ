@@ -11,10 +11,13 @@ from .enums import ValueType, Status
 class Category(models.Model):
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField(max_length=200, unique=True)
-    date_created = models.DateField(auto_now_add=True)
-    is_active = models.BooleanField(default=False)
+    date_created = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+    is_delete = models.BooleanField(default=False)
 
-    creator = models.ForeignKey(CustomUser, related_name='categories', on_delete=models.PROTECT)
+    creator = models.ForeignKey(
+        CustomUser, related_name='categories',
+        on_delete=models.SET_NULL, null=True)
 
     def save(self, *args, **kwargs):
         self.name = ' '.join(self.name.strip().split())
@@ -26,10 +29,11 @@ class Category(models.Model):
 
 class Field(models.Model):
     categories = models.ManyToManyField(Category)
+    creator = models.ForeignKey(CustomUser, related_name='category_fields', null=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=150, unique=True)
-    date_created = models.DateField(auto_now_add=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+    is_delete = models.BooleanField(default=False)
 
-    # creator = models.ForeignKey(CustomUser, related_name='categoriesField', on_delete=models.PROTECT)
 
     def save(self, *args, **kwargs):
         self.name = ' '.join(self.name.strip().split())
@@ -40,25 +44,30 @@ class Field(models.Model):
 
 
 class Product(models.Model):
+    # CharField
     number_id = models.CharField(max_length=8, unique=True)
-    author = models.ForeignKey(CustomUser, related_name='products', on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.PROTECT)
     title = models.CharField(max_length=250)
-    description = models.TextField(max_length=9000, blank=True)
     value_type = models.CharField(max_length=1, choices=ValueType.choices())
-    price = models.FloatField(default=0, validators=[MinValueValidator(0.0)])
-    price_is_dollar = models.BooleanField(default=False)
-    agreement = models.BooleanField(default=False)
-    new = models.BooleanField(default=False)
-    business = models.BooleanField(default=False)
     region = models.CharField(max_length=50)
     district = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=13, validators=[validate_phone])
-    auto_renewal = models.BooleanField(default=False)
+    status = models.CharField(max_length=2, choices=Status.choices(), default=Status.n.name)
+
+    # BoolenField
+    is_agreement = models.BooleanField(default=False)
+    price_is_dollar = models.BooleanField(default=False)
+    is_new = models.BooleanField(default=False)
+    is_business = models.BooleanField(default=False)
+    is_auto_renewal = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
+
+    # TextField
+    description = models.TextField(max_length=9000, blank=True)
+
+    price = models.FloatField(default=0, validators=[MinValueValidator(0.0)])
     views = models.PositiveSmallIntegerField(default=0)
-    status = models.CharField(max_length=2, choices=Status.choices())
-    date_created = models.DateField(auto_now_add=True)
-    date_update = models.DateField(auto_now_add=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
 
     # Image
     main_image = models.ImageField(upload_to=upload_product_path, blank=True)
@@ -68,8 +77,9 @@ class Product(models.Model):
     image4 = models.ImageField(upload_to=upload_product_path, blank=True)
     image5 = models.ImageField(upload_to=upload_product_path, blank=True)
 
-    is_active = models.BooleanField(default=False)
-    is_deleted = models.BooleanField(default=False)
+
+    category = models.ForeignKey(Category, on_delete=models.PROTECT)
+    author = models.ForeignKey(CustomUser, related_name='products', on_delete=models.SET_NULL, null=True)
 
     def save(self, *args, **kwargs):
         self.number_id = sample(range(100), 8)
@@ -83,10 +93,24 @@ class Product(models.Model):
 
 class ProductField(models.Model):
     field = models.ForeignKey(Field, on_delete=models.CASCADE)
-    text = models.CharField(max_length=255, blank=True)
-    is_true = models.BooleanField(default=False)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    date_created = models.DateField(auto_now_add=True)
+    author = models.ForeignKey(
+        CustomUser, related_name='productfields',
+        on_delete=models.SET_NULL, null=True
+    )
+    is_deleted = models.BooleanField(default=False)
+
+    # first choice
+    text = models.CharField(max_length=255, blank=True)
+
+    # second Choice
+    is_true = models.BooleanField(default=False)
+
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        self.text = ' '.join(self.text.strip().split())
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.product} {self.field}'
+        return self.field
