@@ -16,6 +16,9 @@ class StaffRegisterAPIView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [authentication.BasicAuthentication]
 
+    def perform_create(self, serializer):
+        serializer.save(is_staff=True)
+
 
 class ClientRegisterAPIView(generics.CreateAPIView):
     serializer_class = ClientRegisterSerializer

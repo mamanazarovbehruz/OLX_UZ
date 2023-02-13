@@ -13,8 +13,11 @@ from .managers import CustomUserManager
 class CustomUser(AbstractUser):
     username = None
     number_id = models.CharField(max_length=8, unique=True)
-    phone_number = models.CharField(max_length=13, blank=True, validators=[validate_phone])
-    email = models.EmailField(unique=True, blank=True)
+    phone_number = models.CharField(
+        max_length=13, blank=True,
+        validators=[validate_phone]
+    )
+    email = models.EmailField(unique=True)
     balance = models.FloatField(default=0, validators=[MinValueValidator(0.0)])
 
     USERNAME_FIELD = 'email'

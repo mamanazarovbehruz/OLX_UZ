@@ -12,26 +12,46 @@ class StaffRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['phone_number', 'email', 'password']
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
 
-    def create(self, validated_data):
-        instance = CustomUser.objects.create_user(is_staff=True, **validated_data)
-        return instance
+    def validate(self, attrs):
+        if attrs['phone_number']:
+            phone = CustomUser.objects.filter(phone_number=attrs['phone_number'])
+            if phone:
+                raise serializers.ValidationError(
+                {'error': 'Your Phonenumber must be unique'})
+        return attrs
     
+
 class ClientRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
         fields = ['phone_number', 'email', 'password']
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
 
-    def create(self, validated_data):
-        instance = CustomUser.objects.create_user(**validated_data)
-        return instance
+
+    def validate(self, attrs):
+        if attrs['phone_number']:
+            phone = CustomUser.objects.filter(phone_number=attrs['phone_number'])
+            if phone:
+                raise serializers.ValidationError(
+                {'error': 'Your Phonenumber must be unique'})
+        return attrs
+
 
 class UserSerializer(serializers.ModelSerializer):
     date_joined = serializers.DateTimeField(format='%Y-%m-%d %H:%M', read_only=True)
     class Meta:
         model = CustomUser
-        exclude = ['is_active', 'is_deleted', 'is_staff', 'password']
+        exclude = ['id', 'is_active', 'is_deleted', 'is_staff', 'password',
+                   'last_login', 'is_superuser', 'groups', 'user_permissions'
+        ]
+        read_only_fields = ['number_id', 'balance']
 
 
 class UserLoginSerializer(serializers.Serializer):

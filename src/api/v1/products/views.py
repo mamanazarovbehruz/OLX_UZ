@@ -19,7 +19,7 @@ class CategoryAdminListCreateAPIView(generics.ListCreateAPIView):
     authentication_classes = [authentication.BasicAuthentication]
 
     def perform_create(self, serializer):
-        serializer.save(creator=self.request.user)
+        serializer.save(creator=self.request.user)      
 
 
 class CategoryAdminRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
