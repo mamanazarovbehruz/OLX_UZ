@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .models import Product, Category, ProductField, Field
+from api.v1.accounts.serializers import AuthorSerializer
 
-
+# start category serializers
 class CategoryAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -11,12 +12,28 @@ class CategoryAdminSerializer(serializers.ModelSerializer):
         }
 
 
-class CategoryClientSerializer(serializers.ModelSerializer):
+class CategoryChildsChildrenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('parent', 'name', 'date_created')
+        fields = ('name')
 
 
+class CategoryChildrenSerializer(serializers.ModelSerializer):
+    children = CategoryChildsChildrenSerializer(many=True)
+    class Meta:
+        model = Category
+        fields = ('name', 'children')
+
+
+class CategoryClientSerializer(serializers.ModelSerializer):
+    children = CategoryChildrenSerializer(many=True)
+    class Meta:
+        model = Category
+        fields = ('name', 'image', 'children')
+# end category serializers
+
+
+# start Field serializers
 class FieldAminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Field
@@ -26,19 +43,15 @@ class FieldAminSerializer(serializers.ModelSerializer):
             'creator': {'required': False}
         }
 
+
 class FieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = Field
         fields = ['name', 'categories']
+# end Field serializers
 
 
-class ProductFieldSerializer(serializers.ModelSerializer):
-    field = serializers.CharField(source="field.name", required=False)
-    class Meta:
-        model = ProductField
-        exclude = ('product')
-
-
+# start Product and ProductField  serializers
 class ProductListSerializer(serializers.Serializer):
     class Meta:
         model = Product
@@ -48,15 +61,28 @@ class ProductListSerializer(serializers.Serializer):
         )
 
 
+class ProductFieldSerializer(serializers.ModelSerializer):
+    field = serializers.CharField(source="field.name", required=False)
+    class Meta:
+        model = ProductField
+        exclude = ('product')
+
+
 class ProductDetailSerializer(serializers.ModelSerializer):
-    fields = ProductFieldSerializer()
+    cat_fields = ProductFieldSerializer(many=True)
+    author = AuthorSerializer()
     class Meta:
         model = Product
         exclude = (
             'auto_renewal', 'status', 'is_deleted', 'date_updated', 
         )
 
-        
+
+class ProductFieldCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductField
+        exclude = ('product')
+
 
 class ProductCreateSerializer(serializers.ModelSerializer):
     fields = ProductFieldSerializer(many=True)
@@ -74,3 +100,4 @@ class ProductRetrieveUpdateDestroySerializer(serializers.ModelSerializer):
         exclude = (
             'number_id', 'is_deleted', 'views', 'date_created', 'date_updated', 
         )
+# end Product and ProductField  serializers

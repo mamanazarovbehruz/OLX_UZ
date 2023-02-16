@@ -3,6 +3,7 @@ from rest_framework import (
     permissions,
     authentication,
     response,
+    status,
 )
 
 from .permissions import IsDeleted
@@ -14,21 +15,17 @@ from .serializers import *
 class StaffRegisterAPIView(generics.CreateAPIView):
     serializer_class = StaffRegisterSerializer
     permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = [authentication.BasicAuthentication]
-
-    def perform_create(self, serializer):
-        serializer.save(is_staff=True)
 
 
 class ClientRegisterAPIView(generics.CreateAPIView):
     serializer_class = ClientRegisterSerializer
+    permission_classes = []
 
 
 class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.filter(is_deleted=False)
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated, ~IsDeleted]
-    authentication_classes = (authentication.TokenAuthentication)
 
     def get_object(self):
         return self.request.user

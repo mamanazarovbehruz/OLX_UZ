@@ -2,28 +2,23 @@ from random import randint
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from multiselectfield import MultiSelectField
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, validate_email
+from django.core.exceptions import ValidationError
 
 from .validators import validate_phone
 from .services import upload_avatar_path, upload_resume_path
 from .enums import Licences, LanguageLevel, Language
-from .managers import CustomUserManager
 
 
 class CustomUser(AbstractUser):
-    username = None
     number_id = models.CharField(max_length=8, unique=True)
     phone_number = models.CharField(
         max_length=13, blank=True,
         validators=[validate_phone]
     )
-    email = models.EmailField(unique=True)
     balance = models.FloatField(default=0, validators=[MinValueValidator(0.0)])
 
-    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
-
-    objects = CustomUserManager()
 
     about = models.CharField(max_length=255, blank=True)
     birthdate = models.DateField(blank=True, null=True)
@@ -52,6 +47,15 @@ class CustomUser(AbstractUser):
     is_deleted = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
+        try:
+            validate_email(self.username)
+            self.email = self.username
+        except:
+            try:
+                validate_phone(self.username)
+                self.phone_number = self.username
+            except:
+                raise ValidationError('Enter valid email or phone number')
         self.number_id = randint(10000000, 99999999)
         while CustomUser.objects.filter(number_id=self.number_id):
             self.number_id = randint(10000000, 99999999)
@@ -60,7 +64,7 @@ class CustomUser(AbstractUser):
     def __str__(self):
         if self.get_full_name():
             return self.get_full_name()
-        return self.email
+        return self.username
 
 
 class UserLanguage(models.Model):
