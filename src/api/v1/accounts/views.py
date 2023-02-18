@@ -12,13 +12,8 @@ from .serializers import *
 
 # Create your views here.
 
-class StaffRegisterAPIView(generics.CreateAPIView):
-    serializer_class = StaffRegisterSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class ClientRegisterAPIView(generics.CreateAPIView):
-    serializer_class = ClientRegisterSerializer
+class RegisterAPIView(generics.CreateAPIView):
+    serializer_class = RegisterSerializer
     permission_classes = []
 
 

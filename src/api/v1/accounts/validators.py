@@ -6,6 +6,11 @@ def default_user_authentication_rule(user):
 
 
 validate_phone = RegexValidator(
-    regex=r'^\+?998?\d{9}$',
+    regex=r'(^[+]998\d{9}$)',
     message='Raqam 13 ta belgidan iborat bolishi kerak. P.s: +998912345678'
+)
+
+validate_phone_or_email = RegexValidator(
+    regex=r'(^[+]998\d{9}$)|(^[a-zA-Z]{6,30}[0-9]@[a-zA-Z]{3,10}[.][a-zA-Z]{3,10}$)',
+    message=f'Raqam 13 ta belgidan iborat bolishi kerak. P.s: +998912345678. Email P.s: example12@gmail.com'
 )
